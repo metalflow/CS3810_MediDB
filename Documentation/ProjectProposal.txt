@@ -1,0 +1,22 @@
+Title: MediDB
+
+Description:
+	This project is intended to model and implement the Admit/Discharge/Transfer functions of a medical database.
+	We will create an Entity Relationship Diagram of the necessary entities and then implement a database that
+	can store those entities correctly.  If possible, we will also implement a small Database Management System
+	in the form of a transaction processor that can process delimited strings of data and store them in this
+	database as well.
+	Medical Databases must track the admission of all patients, as well as their location within the hospital, and
+	their eventual discharge.  Each patient will have their information stored in the database.  Each admission 
+	will start a new visit which wil have an admit date and time.  During that visit, The patient can only have one 
+	location, though that location can change a number of times.  There is no need to keep track of the room change 
+	history.  At the end of their visit	they will be discharged, and the visit will be updated with a discharge date 
+	and time.
+	
+	The ERD should contain the following entities: Patient,
+	The Database will be impleneted via MySQL
+	Any DBMS we implement will be written in C#
+
+Team Members:
+	Cole Risch
+	Brunno Marqeuzini
