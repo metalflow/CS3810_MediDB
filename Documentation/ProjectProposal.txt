@@ -36,4 +36,4 @@ Description:
 
 Team Members:
 	Cole Risch
-	Brunno Marqeuzini
+	Brunno Putnam
