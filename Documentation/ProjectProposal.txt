@@ -35,5 +35,5 @@ Description:
 	Any DBMS we implement will be written in C#
 
 Team Members:
-	Cole Risch
+	Cole Risch 520-808-2240
 	Brunno R Putnam 713-530-2403

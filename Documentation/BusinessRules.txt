@@ -1,2 +1,23 @@
 Business rules for MediDb
 
+One database can service many hospitals
+each hospital can have many locations
+each hospital can have many location groups
+each location group can have many locations from ONLY the same hospital
+one hospital can service many patients
+one patient can have been serviced by many hospitals
+when a patient is serviced by a hospital, it creates a visit
+a visit can have only one location at a time
+each hospital can have many employees
+each visit must retain the employee who admitted the patient, with date and time
+each visit must retain the employee who discharged the patient, with date and time
+each visit must retain the current location within the hospital
+each visit will generate one bill
+each bill will generate a line item indicating the length of time a patient spent in a particular location
+one patient can have many bills
+one patient can have many history records
+each visit will generate one history record upon discharge
+each history record will retain the admit date and time and discarge date and time
+each history record will retain the patients demographics (age, weight, height, etc) at the time of admit
+the patient history record will not use any foreign keys
+the Bill will not use any foreign keys
