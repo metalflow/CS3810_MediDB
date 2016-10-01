@@ -17,7 +17,19 @@ each bill will generate a line item indicating the length of time a patient spen
 one patient can have many bills
 one patient can have many history records
 each visit will generate one history record upon discharge
-each history record will retain the admit date and time and discarge date and time
+the patient history record will not use any foreign keys in order to preserve history
+the bill will not use any foreign keys in order to reserve history
+
+Business Requirements for MediDB
+Each Hospital must a name, physical address, mailing address, billing address, billing phone number, patient care phone number, and human resources phone number.
+Each location must have a name, cost per hour
+Each location may have a phone number/extension, a group/ward identifier
+Each location group must have a name
+Each patient must a name, a Date of Birth, a sex, a height and weight
+Each patient may have an ethnicity, mailing address, contact phone number, Social security number
+Each visit must have a patient, admit date and time and employee, location, and discharge time and date and employee
+Each visit may have diagnosis codes, treatment notes, patient care notes
+Each employee must have a name, mailing address, contact phone number
+Each employee may have a title, hourly wage, salary, and regular hours
+each history record will retain the admit date and time and discarge date and time, 
 each history record will retain the patients demographics (age, weight, height, etc) at the time of admit
-the patient history record will not use any foreign keys
-the Bill will not use any foreign keys
