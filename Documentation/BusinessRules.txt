@@ -18,7 +18,7 @@ one patient can have many bills
 one patient can have many history records
 each visit will generate one history record upon discharge
 the patient history record will not use any foreign keys in order to preserve history
-the bill will not use any foreign keys in order to reserve history
+the bill will not use any foreign keys in order to preserve history
 
 Business Requirements for MediDB
 Each Hospital must a name, physical address, mailing address, billing address, billing phone number, patient care phone number, and human resources phone number.
