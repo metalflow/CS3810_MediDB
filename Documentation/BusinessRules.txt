@@ -33,3 +33,5 @@ Each employee must have a name, mailing address, contact phone number
 Each employee may have a title, hourly wage, salary, and regular hours
 each history record will retain the admit date and time and discarge date and time, 
 each history record will retain the patients demographics (age, weight, height, etc) at the time of admit
+Each Bill must have a patient name, Hospital name, Hospital Billing address, Hospital Billing Phone, and a list of locations and times for the visit
+Each Bill may have a mailing address for the patient
