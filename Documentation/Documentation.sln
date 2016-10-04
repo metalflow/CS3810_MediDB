@@ -6,8 +6,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{369ED890-F1A4-4443-9801-C15137DAFC58}"
 	ProjectSection(SolutionItems) = preProject
 		BusinessRules.txt = BusinessRules.txt
-		MediDB ERM.vsdx = MediDB ERM.vsdx
-		MediDB.docx = MediDB.docx
 		ProjectProposal.txt = ProjectProposal.txt
 	EndProjectSection
 EndProject

@@ -26,7 +26,7 @@ Each location must have a name, cost per hour
 Each location may have a phone number/extension, a group/ward identifier
 Each location group must have a name
 Each patient must a name, a Date of Birth, a sex, a height and weight
-Each patient may have an ethnicity, mailing address, contact phone number, Social security number
+Each patient may have an ethnicity, mailing address, contact phone number, Social security number, Insurance provider name, Insurance ID
 Each visit must have a patient, admit date and time and employee, location, and discharge time and date and employee
 Each visit may have diagnosis codes, treatment notes, patient care notes
 Each employee must have a name, mailing address, contact phone number
