@@ -145,8 +145,7 @@ CREATE PROCEDURE prc_remove_employee
 END;
 
 CREATE PROCEDURE prc_add_location_group
-	(IN variable INT)
-	BEGIN
+	
 END;
 
 CREATE PROCEDURE prc_remove_location_group
@@ -155,8 +154,25 @@ CREATE PROCEDURE prc_remove_location_group
 END;
 
 CREATE PROCEDURE prc_add_location
-	(IN variable INT)
+	(IN name varchar,IN rate decimal(6,2),IN phone varchar,IN loc_group varchar,IN hos int, OUT outstring varchar)
 	BEGIN
+		IF loc_group is NULL
+			IF (SELECT HOS_ID FROM HOSPITAL WHERE HOS_ID=hos) IS NULL
+				SET outstring = 'Cannot add a location without a HOS_ID';
+			ELSE IF 
+				INSERT INTO LOCATION (LOC_NAME,LOC_RATE,LOC_PHONE,LOC_LOC_GROUP_NAME,LOC_LOC_GROUP_NAME,LOC_HOS_ID) VALUES (name,rate,phone,loc_group,hos);
+				SET outstring = 'success';
+			END IF;
+		ELSE
+			IF (SELECT LOC_GROUP_NAME FROM LOCATION_GROUP WHERE LOC_GROUP_NAME = loc_group) IS NULL 
+				SET outstring = 'given location group does not exist';
+			ELSE IF (SELECT HOS_ID FROM HOSPITAL WHERE HOS_ID=hos) IS NULL
+				SET outstring = 'Cannot add a location without a HOS_ID';
+			ELSE
+				INSERT INTO LOCATION (LOC_NAME,LOC_RATE,LOC_PHONE,LOC_LOC_GROUP_NAME,LOC_LOC_GROUP_NAME,LOC_HOS_ID) VALUES (name,rate,phone,loc_group,hos);
+				SET outstring = 'success';
+			END IF;
+		END IF;
 END;
 
 CREATE PROCEDURE prc_remove_location
