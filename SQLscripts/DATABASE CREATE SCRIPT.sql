@@ -175,3 +175,19 @@ CREATE TRIGGER trg_add_hist_rec
     FOR EACH ROW
 	BEGIN
 END;
+
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `root`@`localhost` 
+    SQL SECURITY DEFINER
+VIEW `all_employees` AS
+    SELECT 
+        `employee`.`EMP_ID` AS `EMP_ID`,
+        `employee`.`EMP_NAME` AS `EMP_NAME`,
+        `employee`.`EMP_MAIL_ADDRESSS` AS `EMP_MAIL_ADDRESSS`,
+        `employee`.`EMP_PHONE` AS `EMP_PHONE`,
+        `employee`.`EMP_TITLE` AS `EMP_TITLE`,
+        `employee`.`EMP_WAGE` AS `EMP_WAGE`,
+        `employee`.`EMP_SALARY` AS `EMP_SALARY`
+    FROM
+        `employee`
