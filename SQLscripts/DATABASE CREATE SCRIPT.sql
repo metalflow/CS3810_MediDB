@@ -176,6 +176,7 @@ CREATE TRIGGER trg_add_hist_rec
 	BEGIN
 END;
 
+
 CREATE 
     ALGORITHM = UNDEFINED 
     DEFINER = `root`@`localhost` 
@@ -190,4 +191,39 @@ VIEW `all_employees` AS
         `employee`.`EMP_WAGE` AS `EMP_WAGE`,
         `employee`.`EMP_SALARY` AS `EMP_SALARY`
     FROM
-        `employee`
+        `employee`;
+        
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `root`@`localhost` 
+    SQL SECURITY DEFINER
+VIEW `all_hospitals` AS
+    SELECT 
+        `hospital`.`HOS_ID` AS `HOS_ID`,
+        `hospital`.`HOS_NAME` AS `HOS_NAME`,
+        `hospital`.`HOS_PHYS_ADDRESS` AS `HOS_PHYS_ADDRESS`,
+        `hospital`.`HOS_MAIL_ADDRESS` AS `HOS_MAIL_ADDRESS`,
+        `hospital`.`HOS_BILL_ADDRESS` AS `HOS_BILL_ADDRESS`,
+        `hospital`.`HOS_BILL_PHONE` AS `HOS_BILL_PHONE`,
+        `hospital`.`HOS_PC_PHONE` AS `HOS_PC_PHONE`,
+        `hospital`.`HOS_HR_PHONE` AS `HOS_HR_PHONE`
+    FROM
+        `hospital`;
+        
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `root`@`localhost` 
+    SQL SECURITY DEFINER
+VIEW `all_patients` AS
+    SELECT 
+        `patient`.`PAT_ID` AS `PAT_ID`,
+        `patient`.`PAT_NAME` AS `PAT_NAME`,
+        `patient`.`PAT_DOB` AS `PAT_DOB`,
+        `patient`.`PAT_SEX` AS `PAT_SEX`,
+        `patient`.`PAT_HEIGHT` AS `PAT_HEIGHT`,
+        `patient`.`PAT_ETH` AS `PAT_ETH`,
+        `patient`.`PAT_MAIL_ADDRESS` AS `PAT_MAIL_ADDRESS`,
+        `patient`.`PAT_PHONE` AS `PAT_PHONE`,
+        `patient`.`PAT_SSN` AS `PAT_SSN`
+    FROM
+        `patient`;
