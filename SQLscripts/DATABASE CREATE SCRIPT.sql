@@ -109,6 +109,7 @@ CREATE TABLE IF NOT EXISTS VISIT (
         REFERENCES EMPLOYEE (EMP_ID)
 );
 
+CREATE INDEX Unique_Locations_for_eadch_hospital ON LOCATION (LOC_NAME, 
 CREATE PROCEDURE prc_admit_patient
 	(IN variable INT)
 	BEGIN
@@ -158,7 +159,7 @@ CREATE PROCEDURE prc_add_location
 	BEGIN
 		IF loc_group is NULL
 			IF (SELECT HOS_ID FROM HOSPITAL WHERE HOS_ID=hos) IS NULL
-				SET outstring = 'Cannot add a location without a HOS_ID';
+				SET outstring = 'Cannot add a location without a valid HOS_ID';
 			ELSE IF 
 				INSERT INTO LOCATION (LOC_NAME,LOC_RATE,LOC_PHONE,LOC_LOC_GROUP_NAME,LOC_LOC_GROUP_NAME,LOC_HOS_ID) VALUES (name,rate,phone,loc_group,hos);
 				SET outstring = 'success';
@@ -167,7 +168,7 @@ CREATE PROCEDURE prc_add_location
 			IF (SELECT LOC_GROUP_NAME FROM LOCATION_GROUP WHERE LOC_GROUP_NAME = loc_group) IS NULL 
 				SET outstring = 'given location group does not exist';
 			ELSE IF (SELECT HOS_ID FROM HOSPITAL WHERE HOS_ID=hos) IS NULL
-				SET outstring = 'Cannot add a location without a HOS_ID';
+				SET outstring = 'Cannot add a location without a valid HOS_ID';
 			ELSE
 				INSERT INTO LOCATION (LOC_NAME,LOC_RATE,LOC_PHONE,LOC_LOC_GROUP_NAME,LOC_LOC_GROUP_NAME,LOC_HOS_ID) VALUES (name,rate,phone,loc_group,hos);
 				SET outstring = 'success';
