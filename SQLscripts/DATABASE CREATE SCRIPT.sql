@@ -109,7 +109,9 @@ CREATE TABLE IF NOT EXISTS VISIT (
         REFERENCES EMPLOYEE (EMP_ID)
 );
 
-CREATE INDEX Unique_Locations_for_eadch_hospital ON LOCATION (LOC_NAME, 
+CREATE INDEX Unique_Locations_for_each_hospital ON LOCATION (LOC_NAME, LOC_HOS_ID);
+CREATE INDEX Unique_names_and_physical_address_for_each_hospital ON HOSPITAL (HOS_NAME, HOS_PHYS_ADDRESS);
+
 CREATE PROCEDURE prc_admit_patient
 	(IN variable INT)
 	BEGIN
@@ -125,9 +127,11 @@ CREATE PROCEDURE prc_transfer_patient
 	BEGIN
 END;
 
-CREATE PROCEDURE prc_add_hospital
-	(IN variable INT)
+CREATE PROCEDURE prc_add_hospital 
+	(IN name varchar(255), IN phys_address varchar(255), IN mail_address varchar(255), IN bill_address varchar(255), IN bill_phone char(10), IN pc_phone varchar(255), IN hr_phone varchar(255), OUT outstring varchar(255))
 	BEGIN
+	INSERT INTO HOSPITAL (HOS_NAME,HOS_PHYS_ADDRESS,HOS_MAIL_ADDRESS,HOS_BILL_ADDRESS,HOS_BILL_PHONE,HOS_PC_PHONE,HOS_HR_PHONE)
+	VALUES (name, phys_address, mail_address, bill_address, bill_phone, pc_phone, hr_phone);
 END;
 
 CREATE PROCEDURE prc_remove_hospital
@@ -154,27 +158,28 @@ CREATE PROCEDURE prc_remove_location_group
 	BEGIN
 END;
 
-CREATE PROCEDURE prc_add_location
-	(IN name varchar,IN rate decimal(6,2),IN phone varchar,IN loc_group varchar,IN hos int, OUT outstring varchar)
-	BEGIN
-		IF loc_group is NULL
-			IF (SELECT HOS_ID FROM HOSPITAL WHERE HOS_ID=hos) IS NULL
-				SET outstring = 'Cannot add a location without a valid HOS_ID';
-			ELSE IF 
+CREATE PROCEDURE `prc_add_location`(IN name varchar(255), IN rate decimal(6,2),IN phone varchar(255),IN loc_group varchar(255),IN hos int, OUT outstring varchar(255))
+BEGIN
+		IF loc_group is NULL then
+			IF (SELECT HOS_ID FROM HOSPITAL WHERE HOS_ID=hos) IS NULL then
+				SET outstring = 'Cannot add a location without a HOS_ID';
+			ELSE  
 				INSERT INTO LOCATION (LOC_NAME,LOC_RATE,LOC_PHONE,LOC_LOC_GROUP_NAME,LOC_LOC_GROUP_NAME,LOC_HOS_ID) VALUES (name,rate,phone,loc_group,hos);
 				SET outstring = 'success';
 			END IF;
 		ELSE
-			IF (SELECT LOC_GROUP_NAME FROM LOCATION_GROUP WHERE LOC_GROUP_NAME = loc_group) IS NULL 
+			IF (SELECT LOC_GROUP_NAME FROM LOCATION_GROUP WHERE LOC_GROUP_NAME = loc_group) IS NULL then
 				SET outstring = 'given location group does not exist';
-			ELSE IF (SELECT HOS_ID FROM HOSPITAL WHERE HOS_ID=hos) IS NULL
-				SET outstring = 'Cannot add a location without a valid HOS_ID';
+			ELSE IF (SELECT HOS_ID FROM HOSPITAL WHERE HOS_ID=hos) IS NULL then
+				SET outstring = 'Cannot add a location without a HOS_ID';
 			ELSE
 				INSERT INTO LOCATION (LOC_NAME,LOC_RATE,LOC_PHONE,LOC_LOC_GROUP_NAME,LOC_LOC_GROUP_NAME,LOC_HOS_ID) VALUES (name,rate,phone,loc_group,hos);
 				SET outstring = 'success';
 			END IF;
 		END IF;
-END;
+        END IF;
+		select outstring;
+END
 
 CREATE PROCEDURE prc_remove_location
 	(IN variable INT)
