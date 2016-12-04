@@ -15,13 +15,13 @@ CREATE TABLE IF NOT EXISTS HOSPITAL (
 
 CREATE TABLE IF NOT EXISTS PATIENT (
     PAT_ID INT PRIMARY KEY AUTO_INCREMENT,
-    PAT_FNAME VARCHAR(255),
-    PAT_LNAME VARCHAR(255),
-    PAT_DOB DATE,
-    PAT_SEX CHAR(2),
-    PAT_HEIGHT DECIMAL(2 , 2 ) COMMENT 'Stored in meters',
-    PAT_WEIGHT DECIMAL(4 , 2 ) COMMENT 'Stored in kilograms',
-    PAT_ETH VARCHAR(255),
+    PAT_FNAME VARCHAR(255) REQUIRED NOT NULL,
+    PAT_LNAME VARCHAR(255) REQUIRED NOT NULL,
+    PAT_DOB DATE REQUIRED NOT NULL,
+    PAT_SEX CHAR(2) REQUIRED NOT NULL,
+    PAT_HEIGHT DECIMAL(2 , 2 ) REQUIRED NOT NULL COMMENT 'Stored in meters',
+    PAT_WEIGHT DECIMAL(4 , 2 ) REQUIRED NOT NULL COMMENT 'Stored in kilograms',
+    PAT_ETH VARCHAR(255) REQUIRED NOT NULL,
     PAT_MAIL_ADDRESS VARCHAR(255),
     PAT_PHONE CHAR(12),
     PAT_SSN CHAR(11)
@@ -57,8 +57,8 @@ CREATE TABLE IF NOT EXISTS BILL (
 );
 
 CREATE TABLE IF NOT EXISTS LOCATION_GROUP (
-    LOC_GROUP_NAME VARCHAR(255),
-    LOC_GROUP_HOS_ID INT,
+    LOC_GROUP_NAME VARCHAR(255) REQUIRED NOT NULL,
+    LOC_GROUP_HOS_ID INT REQUIRED NOT NULL,
     PRIMARY KEY (LOC_GROUP_NAME , LOC_GROUP_HOS_ID),
     FOREIGN KEY (LOC_GROUP_HOS_ID)
         REFERENCES HOSPITAL (HOS_ID)
@@ -109,12 +109,62 @@ CREATE TABLE IF NOT EXISTS VISIT (
         REFERENCES EMPLOYEE (EMP_ID)
 );
 
-CREATE INDEX Unique_Locations_for_each_hospital ON LOCATION (LOC_NAME, LOC_HOS_ID);
-CREATE INDEX Unique_names_and_physical_address_for_each_hospital ON HOSPITAL (HOS_NAME, HOS_PHYS_ADDRESS);
+CREATE UNIQUE INDEX Unique_Locations_for_each_hospital ON LOCATION (LOC_NAME, LOC_HOS_ID);
+CREATE UNIQUE INDEX Unique_names_and_physical_address_for_each_hospital ON HOSPITAL (HOS_NAME, HOS_PHYS_ADDRESS);
+CREATE UNIQUE INDEX Unique_names_and_mail_address_for_each_employee ON EMPLOYEE (EMP_NAME, EMP_MAIL_ADDRESS);
+CREATE INDEX patient_name_lookup_assist ON PATIENT (PAT_FNAME, PAT_LNAME);
 
 CREATE PROCEDURE prc_admit_patient
-	(IN variable INT)
+	(IN fname VARCHAR(255),IN lname VARCHAR(255), IN dob DATE, IN sex CHAR(2), IN height DECIMAL(2 , 2 ), IN pat_weight DECIMAL(4 , 2 ), IN eth VARCHAR(255), IN mail VARCHAR(255), IN phone CHAR(12), IN ssn CHAR(11), IN loc VARCHAR(255), IN emp INT)
 	BEGIN
+	DECLARE countofrecords INT;
+	DECLARE pat_id INT;
+	START TRANSACTION
+
+	SET pat_id = CALL func_find_patient(fname,lname,dob,sex,height,pat_weight,eth,mail,phone,ssn);
+
+	IF pat_id = -1 THEN
+		INSERT INTO PATIENT (PAT_FNAME,PAT_LNAME,PAT_DOB,PAT_SEX,PAT_HEIGHT,PAT_WEIGHT,PAT_ETH,PAT_MAIL_ADDRES,PAT_PHONE,PAT_SSN)
+		VALUES (fname,lname,dob, sex, height, pat_weight, eth, mail, phone, ssn);
+		pat_id = LAST_INSERT_ID();
+	END IF;
+
+	IF pat_id >= 0 THEN
+		INSERT INTO VISIT (VISIT_ADMIT_DATE,VISIT_ADMIT_TIME,VISIT_LOC_ID,VISIT_LOC_DATE_START,VISIT_LOC_TIME_START,VISIT_PAT_ID,VISIT_ADMIT_EMP)
+		VALUES (CURDATE(), CURTIME(), loc, CURDATE(), CURTIME(), pat_id, emp);
+	END IF;
+		    
+END;
+
+CREATE FUNCTION func_find_patient
+	(IN fname VARCHAR(255),IN lname VARCHAR(255), IN dob DATE, IN sex CHAR(2), IN height DECIMAL(2 , 2 ), IN pat_weight DECIMAL(4 , 2 ), IN eth VARCHAR(255), IN mail VARCHAR(255), IN phone CHAR(12), IN ssn CHAR(11))
+BEGIN
+	DECLARE countofrecords INT;
+	DECLARE pat_id INT;
+	IF fname IS NULL OR lname IS NULL THEN
+		RETURN -2;
+	END IF;
+
+	SELECT COUNT(*) INTO countofrecords FROM PATIENT WHERE PAT_FNAME = fname AND PAT_LNAME = lname;
+	IF countofrecords = 1 THEN
+		SELECT PAT_ID INTO pat_id FROM PATIENT WHERE PAT_FNAME = fname AND PAT_LNAME = lname;
+		RETURN pat_id;
+	END IF;
+
+	CASE
+		WHEN dob IS NOT NULL AND sex IS NOT NULL AND height IS NOT NULL AND pat_weight IS NOT NULL AND eth IS NOT NULL AND mail IS NOT NULL AND phone IS NOT NULL AND ssn IS NOT NULL THEN
+			SELECT COUNT(*) INTO countofrecords FROM PATIENT WHERE PAT_FNAME = fname AND PAT_LNAME = lname AND PAT_DOB = dob AND PAT_SEX = sex AND PAT_HEIGHT = height AND PAT_WEIGHT = pat_weight AND PAT_ETH = eth AND PAT_MAIL_ADDRESS = mail AND PAT_PHONE = phone AND PAT_SSN = ssn;
+			IF countofrecords = 1 THEN
+				SELECT PAT_ID INTO pat_id FROM PATIENT WHERE PAT_FNAME = fname AND PAT_LNAME = lname AND PAT_DOB = dob AND PAT_SEX = sex AND PAT_HEIGHT = height AND PAT_WEIGHT = pat_weight AND PAT_ETH = eth AND PAT_MAIL_ADDRESS = mail AND PAT_PHONE = phone AND PAT_SSN = ssn;
+				RETURN pat_id;
+			ELSE
+				RETURN -1;
+			END IF;
+		WHEN action = 'create' THEN
+			INSERT INTO sometable (column) VALUES (value);
+	END CASE
+
+	RETURN -2;
 END;
 
 CREATE PROCEDURE prc_discharge_patient
@@ -140,8 +190,10 @@ CREATE PROCEDURE prc_remove_hospital
 END;
 
 CREATE PROCEDURE prc_add_employee
-	(IN variable INT)
+	(IN name VARCHAR(255), IN mail VARCHAR(255), IN phone VARCHAR(255), IN title VARCHAR(255), IN wage  DECIMAL(9 , 2 ), IN salary DECIMAL(18 , 2 ))
 	BEGIN
+	INSERT INTO EMPLOYEE (EMP_NAME, EMP_MAIL_ADDRESSS, EMP_PHONE, EMP_TITLE, EMP_WAGE, EMP_SALARY)
+	VALUES(name,mail,phone,title,wage,salary);
 END;
 
 CREATE PROCEDURE prc_remove_employee
@@ -150,7 +202,9 @@ CREATE PROCEDURE prc_remove_employee
 END;
 
 CREATE PROCEDURE prc_add_location_group
-	
+	(IN group_name VARCHAR(255), IN hos_id INT)
+	BEGIN
+	INSERT INTO LOCATION_GROUP VALUES (group_name, hos_id);
 END;
 
 CREATE PROCEDURE prc_remove_location_group
@@ -158,27 +212,22 @@ CREATE PROCEDURE prc_remove_location_group
 	BEGIN
 END;
 
-CREATE PROCEDURE `prc_add_location`(IN name varchar(255), IN rate decimal(6,2),IN phone varchar(255),IN loc_group varchar(255),IN hos int, OUT outstring varchar(255))
+CREATE PROCEDURE `prc_add_location`(IN name varchar(255), IN rate decimal(6,2),IN phone varchar(255),IN loc_group varchar(255),IN hos int,)
 BEGIN
 		IF loc_group is NULL then
 			IF (SELECT HOS_ID FROM HOSPITAL WHERE HOS_ID=hos) IS NULL then
-				SET outstring = 'Cannot add a location without a HOS_ID';
 			ELSE  
 				INSERT INTO LOCATION (LOC_NAME,LOC_RATE,LOC_PHONE,LOC_LOC_GROUP_NAME,LOC_LOC_GROUP_NAME,LOC_HOS_ID) VALUES (name,rate,phone,loc_group,hos);
-				SET outstring = 'success';
 			END IF;
 		ELSE
 			IF (SELECT LOC_GROUP_NAME FROM LOCATION_GROUP WHERE LOC_GROUP_NAME = loc_group) IS NULL then
-				SET outstring = 'given location group does not exist';
 			ELSE IF (SELECT HOS_ID FROM HOSPITAL WHERE HOS_ID=hos) IS NULL then
 				SET outstring = 'Cannot add a location without a HOS_ID';
 			ELSE
 				INSERT INTO LOCATION (LOC_NAME,LOC_RATE,LOC_PHONE,LOC_LOC_GROUP_NAME,LOC_LOC_GROUP_NAME,LOC_HOS_ID) VALUES (name,rate,phone,loc_group,hos);
-				SET outstring = 'success';
 			END IF;
 		END IF;
         END IF;
-		select outstring;
 END
 
 CREATE PROCEDURE prc_remove_location
