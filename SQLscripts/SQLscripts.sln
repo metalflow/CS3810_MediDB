@@ -10,6 +10,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		insert into location - select view.sql = insert into location - select view.sql
 		insert into visit - select view.sql = insert into visit - select view.sql
 		prc_add_location.sql = prc_add_location.sql
+		SQLinProcess.sql = SQLinProcess.sql
+		TestDataPopulate.sql = TestDataPopulate.sql
 	EndProjectSection
 EndProject
 Global

@@ -93,6 +93,7 @@ CREATE TABLE IF NOT EXISTS VISIT (
     VISIT_ADMIT_DATE DATE,
     VISIT_ADMIT_TIME TIME,
     VISIT_DISCH_DATE DATE,
+    VISIT_DISCH_TIME TIME,
     VISIT_LOC_ID INT,
     VISIT_LOC_DATE_START DATE,
     VISIT_LOC_TIME_START TIME,
@@ -115,56 +116,16 @@ CREATE UNIQUE INDEX Unique_names_and_mail_address_for_each_employee ON EMPLOYEE 
 CREATE INDEX patient_name_lookup_assist ON PATIENT (PAT_FNAME, PAT_LNAME);
 
 CREATE PROCEDURE prc_admit_patient
-	(IN fname VARCHAR(255),IN lname VARCHAR(255), IN dob DATE, IN sex CHAR(2), IN height DECIMAL(2 , 2 ), IN pat_weight DECIMAL(4 , 2 ), IN eth VARCHAR(255), IN mail VARCHAR(255), IN phone CHAR(12), IN ssn CHAR(11), IN loc VARCHAR(255), IN emp INT)
+	(IN pat_id INT, IN loc_id INT, IN admit_emp INT)
 	BEGIN
-	DECLARE countofrecords INT;
-    DECLARE pat_id INT;
-	START TRANSACTION
-
-	SET pat_id = CALL func_find_patient(fname,lname,dob,sex,height,pat_weight,eth,mail,phone,ssn);
-
-	IF pat_id = -1 THEN
-		INSERT INTO PATIENT (PAT_FNAME,PAT_LNAME,PAT_DOB,PAT_SEX,PAT_HEIGHT,PAT_WEIGHT,PAT_ETH,PAT_MAIL_ADDRES,PAT_PHONE,PAT_SSN)
-		VALUES (fname,lname,dob, sex, height, pat_weight, eth, mail, phone, ssn);
-		pat_id = LAST_INSERT_ID();
+    SELECT COUNT(*) INTO countofrecords FROM VISIT WHERE (VISIT_PAT_ID = pat_id AND VISIT_DISCH_DATE = null AND VISIT_DISCH_TIME = null AND VISIT_DISCH_EMP = null);
+    
+    IF countofrecords = 0 THEN
+		INSERT INTO VISIT (VISIT_ADMIT_DATE, VISIT_ADMIT_TIME, VISIT_LOC_ID, VISIT_LOC_DATE_START, VISIT_LOC_TIME_START, VISIT_PAT_ID, VISIT_ADMIT_EMP)
+		VALUES (CURDATE(), CURTIME(), loc_id, CURDATE(), CURTIME(), pat_id, emp_id);
+	ELSE
+		SIGNAL SQLSTATE '02' SET MESSAGE_TEXT = 'There are visits currently open for this patient, try transferring the patient';
 	END IF;
-
-	IF pat_id >= 0 THEN
-		INSERT INTO VISIT (VISIT_ADMIT_DATE,VISIT_ADMIT_TIME,VISIT_LOC_ID,VISIT_LOC_DATE_START,VISIT_LOC_TIME_START,VISIT_PAT_ID,VISIT_ADMIT_EMP)
-		VALUES (CURDATE(), CURTIME(), loc, CURDATE(), CURTIME(), pat_id, emp);
-	END IF;
-		    
-END;
-
-CREATE FUNCTION func_find_patient
-	(IN fname VARCHAR(255),IN lname VARCHAR(255), IN dob DATE, IN sex CHAR(2), IN height DECIMAL(2 , 2 ), IN pat_weight DECIMAL(4 , 2 ), IN eth VARCHAR(255), IN mail VARCHAR(255), IN phone CHAR(12), IN ssn CHAR(11))
-BEGIN
-	DECLARE countofrecords INT;
-	DECLARE pat_id INT;
-	IF fname IS NULL OR lname IS NULL THEN
-		RETURN -2;
-	END IF;
-
-	SELECT COUNT(*) INTO countofrecords FROM PATIENT WHERE PAT_FNAME = fname AND PAT_LNAME = lname;
-	IF countofrecords = 1 THEN
-		SELECT PAT_ID INTO pat_id FROM PATIENT WHERE PAT_FNAME = fname AND PAT_LNAME = lname;
-		RETURN pat_id;
-	END IF;
-
-	CASE
-		WHEN dob IS NOT NULL AND sex IS NOT NULL AND height IS NOT NULL AND pat_weight IS NOT NULL AND eth IS NOT NULL AND mail IS NOT NULL AND phone IS NOT NULL AND ssn IS NOT NULL THEN
-			SELECT COUNT(*) INTO countofrecords FROM PATIENT WHERE PAT_FNAME = fname AND PAT_LNAME = lname AND PAT_DOB = dob AND PAT_SEX = sex AND PAT_HEIGHT = height AND PAT_WEIGHT = pat_weight AND PAT_ETH = eth AND PAT_MAIL_ADDRESS = mail AND PAT_PHONE = phone AND PAT_SSN = ssn;
-			IF countofrecords = 1 THEN
-				SELECT PAT_ID INTO pat_id FROM PATIENT WHERE PAT_FNAME = fname AND PAT_LNAME = lname AND PAT_DOB = dob AND PAT_SEX = sex AND PAT_HEIGHT = height AND PAT_WEIGHT = pat_weight AND PAT_ETH = eth AND PAT_MAIL_ADDRESS = mail AND PAT_PHONE = phone AND PAT_SSN = ssn;
-				RETURN pat_id;
-			ELSE
-				RETURN -1;
-			END IF;
-		WHEN action = 'create' THEN
-			INSERT INTO sometable (column) VALUES (value);
-	END CASE
-
-	RETURN -2;
 END;
 
 CREATE PROCEDURE prc_discharge_patient
