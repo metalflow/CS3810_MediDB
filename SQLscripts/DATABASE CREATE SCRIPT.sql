@@ -132,8 +132,7 @@ END;
 CREATE PROCEDURE prc_discharge_patient
 	(IN pat_id INT, IN admit_emp INT)
 	BEGIN
-    DECLARE countofrecords INT;
-    DECLARE visit_id INT;
+    DECLARE countofrecords,visit_id INT;
 	SELECT COUNT(*),VISIT_ID INTO countofrecords,visit_id FROM VISIT WHERE (VISIT_PAT_ID = pat_id AND VISIT_DISCH_DATE = null AND VISIT_DISCH_TIME = null AND VISIT_DISCH_EMP = null);
     
     IF countofrecords = 0 THEN
