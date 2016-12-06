@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS HISTORY_RECORD (
 CREATE TABLE IF NOT EXISTS EMPLOYEE (
     EMP_ID INT PRIMARY KEY AUTO_INCREMENT,
     EMP_NAME VARCHAR(255),
-    EMP_MAIL_ADDRESSS VARCHAR(255),
+    EMP_MAIL_ADDRESS VARCHAR(255),
     EMP_PHONE VARCHAR(255),
     EMP_TITLE VARCHAR(255),
     EMP_WAGE DECIMAL(9 , 2 ),
@@ -173,7 +173,7 @@ DELIMITER ;
 CREATE PROCEDURE prc_add_employee
 	(IN name VARCHAR(255), IN mail VARCHAR(255), IN phone VARCHAR(255), IN title VARCHAR(255), IN wage  DECIMAL(9 , 2 ), IN salary DECIMAL(18 , 2 ))
 	BEGIN
-	INSERT INTO EMPLOYEE (EMP_NAME, EMP_MAIL_ADDRESSS, EMP_PHONE, EMP_TITLE, EMP_WAGE, EMP_SALARY)
+	INSERT INTO EMPLOYEE (EMP_NAME, EMP_MAIL_ADDRESS, EMP_PHONE, EMP_TITLE, EMP_WAGE, EMP_SALARY)
 	VALUES(name,mail,phone,title,wage,salary);
 END;
 DELIMITER ;
@@ -249,15 +249,15 @@ CREATE
     SQL SECURITY DEFINER
 VIEW `all_employees` AS
     SELECT 
-        `employee`.`EMP_ID` AS `EMP_ID`,
-        `employee`.`EMP_NAME` AS `EMP_NAME`,
-        `employee`.`EMP_MAIL_ADDRESSS` AS `EMP_MAIL_ADDRESSS`,
-        `employee`.`EMP_PHONE` AS `EMP_PHONE`,
-        `employee`.`EMP_TITLE` AS `EMP_TITLE`,
-        `employee`.`EMP_WAGE` AS `EMP_WAGE`,
-        `employee`.`EMP_SALARY` AS `EMP_SALARY`
+        `EMPLOYEE`.`EMP_ID` AS `EMP_ID`,
+        `EMPLOYEE`.`EMP_NAME` AS `EMP_NAME`,
+        `EMPLOYEE`.`EMP_MAIL_ADDRESS` AS `EMP_MAIL_ADDRESS`,
+        `EMPLOYEE`.`EMP_PHONE` AS `EMP_PHONE`,
+        `EMPLOYEE`.`EMP_TITLE` AS `EMP_TITLE`,
+        `EMPLOYEE`.`EMP_WAGE` AS `EMP_WAGE`,
+        `EMPLOYEE`.`EMP_SALARY` AS `EMP_SALARY`
     FROM
-        `employee`;
+        `EMPLOYEE`;
         
 CREATE 
     ALGORITHM = UNDEFINED 
@@ -265,16 +265,16 @@ CREATE
     SQL SECURITY DEFINER
 VIEW `all_hospitals` AS
     SELECT 
-        `hospital`.`HOS_ID` AS `HOS_ID`,
-        `hospital`.`HOS_NAME` AS `HOS_NAME`,
-        `hospital`.`HOS_PHYS_ADDRESS` AS `HOS_PHYS_ADDRESS`,
-        `hospital`.`HOS_MAIL_ADDRESS` AS `HOS_MAIL_ADDRESS`,
-        `hospital`.`HOS_BILL_ADDRESS` AS `HOS_BILL_ADDRESS`,
-        `hospital`.`HOS_BILL_PHONE` AS `HOS_BILL_PHONE`,
-        `hospital`.`HOS_PC_PHONE` AS `HOS_PC_PHONE`,
-        `hospital`.`HOS_HR_PHONE` AS `HOS_HR_PHONE`
+        `HOSPITAL`.`HOS_ID` AS `HOS_ID`,
+        `HOSPITAL`.`HOS_NAME` AS `HOS_NAME`,
+        `HOSPITAL`.`HOS_PHYS_ADDRESS` AS `HOS_PHYS_ADDRESS`,
+        `HOSPITAL`.`HOS_MAIL_ADDRESS` AS `HOS_MAIL_ADDRESS`,
+        `HOSPITAL`.`HOS_BILL_ADDRESS` AS `HOS_BILL_ADDRESS`,
+        `HOSPITAL`.`HOS_BILL_PHONE` AS `HOS_BILL_PHONE`,
+        `HOSPITAL`.`HOS_PC_PHONE` AS `HOS_PC_PHONE`,
+        `HOSPITAL`.`HOS_HR_PHONE` AS `HOS_HR_PHONE`
     FROM
-        `hospital`;
+        `HOSPITAL`;
         
 CREATE 
     ALGORITHM = UNDEFINED 
@@ -282,14 +282,15 @@ CREATE
     SQL SECURITY DEFINER
 VIEW `all_patients` AS
     SELECT 
-        `patient`.`PAT_ID` AS `PAT_ID`,
-        `patient`.`PAT_NAME` AS `PAT_NAME`,
-        `patient`.`PAT_DOB` AS `PAT_DOB`,
-        `patient`.`PAT_SEX` AS `PAT_SEX`,
-        `patient`.`PAT_HEIGHT` AS `PAT_HEIGHT`,
-        `patient`.`PAT_ETH` AS `PAT_ETH`,
-        `patient`.`PAT_MAIL_ADDRESS` AS `PAT_MAIL_ADDRESS`,
-        `patient`.`PAT_PHONE` AS `PAT_PHONE`,
-        `patient`.`PAT_SSN` AS `PAT_SSN`
+        `PATIENT`.`PAT_ID` AS `PAT_ID`,
+        `PATIENT`.`PAT_FNAME` AS `PAT_FNAME`,
+		`PATIENT`.`PAT_LNAME` AS `PAT_LNAME`,
+        `PATIENT`.`PAT_DOB` AS `PAT_DOB`,
+        `PATIENT`.`PAT_SEX` AS `PAT_SEX`,
+        `PATIENT`.`PAT_HEIGHT` AS `PAT_HEIGHT`,
+        `PATIENT`.`PAT_ETH` AS `PAT_ETH`,
+        `PATIENT`.`PAT_MAIL_ADDRESS` AS `PAT_MAIL_ADDRESS`,
+        `PATIENT`.`PAT_PHONE` AS `PAT_PHONE`,
+        `PATIENT`.`PAT_SSN` AS `PAT_SSN`
     FROM
-        `patient`;
+        `PATIENT`;
