@@ -118,7 +118,8 @@ CREATE INDEX patient_name_lookup_assist ON PATIENT (PAT_FNAME, PAT_LNAME);
 CREATE PROCEDURE prc_admit_patient
 	(IN pat_id INT, IN loc_id INT, IN admit_emp INT)
 	BEGIN
-    SELECT COUNT(*) INTO countofrecords FROM VISIT WHERE (VISIT_PAT_ID = pat_id AND VISIT_DISCH_DATE = null AND VISIT_DISCH_TIME = null AND VISIT_DISCH_EMP = null);
+    DECLARE countofrecords INT;
+    SELECT COUNT(*) INTO countofrecords FROM VISIT WHERE (VISIT_PAT_ID = pat_id AND VISIT_DISCH_DATE IS NULL AND VISIT_DISCH_TIME IS null AND VISIT_DISCH_EMP IS NULL);
     
     IF countofrecords = 0 THEN
 		INSERT INTO VISIT (VISIT_ADMIT_DATE, VISIT_ADMIT_TIME, VISIT_LOC_ID, VISIT_LOC_DATE_START, VISIT_LOC_TIME_START, VISIT_PAT_ID, VISIT_ADMIT_EMP)
@@ -129,12 +130,22 @@ CREATE PROCEDURE prc_admit_patient
 END;
 
 CREATE PROCEDURE prc_discharge_patient
-	(IN variable INT)
+	(IN pat_id INT, IN admit_emp INT)
 	BEGIN
+    DECLARE countofrecords INT;
+    DECLARE visit_id INT;
+	SELECT COUNT(*),VISIT_ID INTO countofrecords,visit_id FROM VISIT WHERE (VISIT_PAT_ID = pat_id AND VISIT_DISCH_DATE = null AND VISIT_DISCH_TIME = null AND VISIT_DISCH_EMP = null);
+    
+    IF countofrecords = 0 THEN
+		SIGNAL SQLSTATE '02' SET MESSAGE_TEXT = 'There are no visits currently open for this patient';
+	ELSE
+		UPDATE VISIT SET VISIT_DISCH_DATE = CURDATE(), VISIT_DISCH_TIME = CURTIME(), VISIT_DISCH_EMP = emp_id
+        WHERE VISIT_ID = visit_id AND VISIT_PAT_ID = pat_id;
+	END IF;
 END;
 
 CREATE PROCEDURE prc_transfer_patient
-	(IN variable INT)
+	(IN pat_id INT, IN loc_id INT, IN admit_emp INT)
 	BEGIN
 END;
 
