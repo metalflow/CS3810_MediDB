@@ -115,10 +115,12 @@ CREATE UNIQUE INDEX Unique_names_and_physical_address_for_each_hospital ON HOSPI
 CREATE UNIQUE INDEX Unique_names_and_mail_address_for_each_employee ON EMPLOYEE (EMP_NAME, EMP_MAIL_ADDRESS);
 CREATE INDEX patient_name_lookup_assist ON PATIENT (PAT_FNAME, PAT_LNAME);
 
+
+DELIMITER //
 CREATE PROCEDURE prc_admit_patient
 	(IN pat_id INT, IN loc_id INT, IN admit_emp INT)
 	BEGIN
-    DECLARE countofrecords INT;
+    DECLARE countofrecords INT DEFAULT 0;
     SELECT COUNT(*) INTO countofrecords FROM VISIT WHERE (VISIT_PAT_ID = pat_id AND VISIT_DISCH_DATE IS NULL AND VISIT_DISCH_TIME IS null AND VISIT_DISCH_EMP IS NULL);
     
     IF countofrecords = 0 THEN
@@ -128,11 +130,12 @@ CREATE PROCEDURE prc_admit_patient
 		SIGNAL SQLSTATE '02' SET MESSAGE_TEXT = 'There are visits currently open for this patient, try transferring the patient';
 	END IF;
 END;
-
+DELIMITER ;
+ 
 CREATE PROCEDURE prc_discharge_patient
 	(IN pat_id INT, IN admit_emp INT)
 	BEGIN
-    DECLARE countofrecords,visit_id INT;
+    DECLARE countofrecords,visit_id type INT;
 	SELECT COUNT(*),VISIT_ID INTO countofrecords,visit_id FROM VISIT WHERE (VISIT_PAT_ID = pat_id AND VISIT_DISCH_DATE = null AND VISIT_DISCH_TIME = null AND VISIT_DISCH_EMP = null);
     
     IF countofrecords = 0 THEN
