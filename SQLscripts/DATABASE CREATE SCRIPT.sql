@@ -150,7 +150,15 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_discharge_patient`
 	(IN pat_id INT, IN admit_emp INT)
 	BEGIN
     DECLARE countofrecords,visit_id INT;
-	SELECT COUNT(*),VISIT_ID INTO countofrecords,visit_id FROM VISIT WHERE (VISIT_PAT_ID = pat_id AND VISIT_DISCH_DATE = null AND VISIT_DISCH_TIME = null AND VISIT_DISCH_EMP = null);
+	SELECT 
+    COUNT(*), VISIT_ID
+INTO countofrecords , visit_id FROM
+    VISIT
+WHERE
+    (VISIT_PAT_ID = pat_id
+        AND VISIT_DISCH_DATE IS NULL
+        AND VISIT_DISCH_TIME IS NULL
+        AND VISIT_DISCH_EMP IS NULL);
     
     IF countofrecords = 0 THEN
 		SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'There are no visits currently open for this patient';
@@ -166,8 +174,25 @@ DROP procedure IF EXISTS `prc_transfer_patient`;
 DELIMITER $$
 USE `CS3810_MediDB`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_transfer_patient`
-	(IN pat_id INT, IN loc_id INT, IN admit_emp INT)
+	(IN pat_id INT, IN loc_id INT, IN emp INT)
 	BEGIN
+	DECLARE countofrecords,visit_id INT;
+	SELECT 
+    COUNT(*), VISIT_ID
+INTO countofrecords , visit_id FROM
+    VISIT
+WHERE
+    (VISIT_PAT_ID = pat_id
+        AND VISIT_DISCH_DATE IS NULL
+        AND VISIT_DISCH_TIME IS NULL
+        AND VISIT_DISCH_EMP IS NULL);
+    
+    IF countofrecords = 0 THEN
+		SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'There are no visits currently open for this patient';
+	ELSE
+		UPDATE VISIT SET VISIT_LOC_DATE_START = CURDATE(), VISIT_LOC_TIME_START = CURTIME(), VISIT_LOC_ID = loc_id
+        WHERE VISIT_ID = visit_id AND VISIT_PAT_ID = pat_id;
+	END IF;
 END$$
 DELIMITER ;
 
@@ -188,8 +213,9 @@ DROP procedure IF EXISTS `prc_remove_hospital`;
 DELIMITER $$
 USE `CS3810_MediDB`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_remove_hospital`
-	(IN variable INT)
+	(IN hos_id INT)
 	BEGIN
+    DELETE FROM HOSPITAL WHERE HOS_ID = hos_id;
 END$$
 DELIMITER ;
 
@@ -210,8 +236,9 @@ DROP procedure IF EXISTS `prc_remove_employee`;
 DELIMITER $$
 USE `CS3810_MediDB`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_remove_employee`
-	(IN variable INT)
+	(IN emp_id INT)
 	BEGIN
+    DELETE FROM EMPLOYEE WHERE EMP_ID = emp_id;
 END$$
 DELIMITER ;
 
@@ -231,8 +258,21 @@ DROP procedure IF EXISTS `prc_remove_location_group`;
 DELIMITER $$
 USE `CS3810_MediDB`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_remove_location_group`
-	(IN variable INT)
+	(IN group_name varchar(255), hos_id INT)
 	BEGIN
+    DELETE FROM LOCATION_GROUP WHERE LOC_GROUP_NAME = group_name AND LOC_GROUP_HOS_ID = hos_id;
+END$$
+DELIMITER ;
+
+USE `CS3810_MediDB`;
+DROP procedure IF EXISTS `prc_add_location`;
+DELIMITER $$
+USE `CS3810_MediDB`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_add_location`
+(IN loc_name varchar(255), IN rate decimal(6,2),IN phone varchar(255),IN loc_group varchar(255),IN hos int)
+BEGIN
+		INSERT INTO LOCATION (LOC_NAME, LOC_RATE, LOC_PHONE, LOC_LOC_GROUP_NAME, LOC_HOS_ID)
+        VALUES (loc_name, rate, phone, loc_group, hos);
 END$$
 DELIMITER ;
 
@@ -241,8 +281,9 @@ DROP procedure IF EXISTS `prc_remove_location`;
 DELIMITER $$
 USE `CS3810_MediDB`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_remove_location`
-	(IN variable INT)
+	(IN loc_id INT)
 	BEGIN
+    DELETE FROM LOCATION WHERE LOC_ID = loc_id;
 END$$
 DELIMITER ;
 
@@ -251,6 +292,7 @@ CREATE TRIGGER trg_update_bill
 	BEFORE UPDATE ON VISIT
     FOR EACH ROW
 	BEGIN
+    
 END$$
 DELIMITER ;
 
